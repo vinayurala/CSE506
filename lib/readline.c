@@ -42,6 +42,10 @@ readline(const char *prompt)
 	}
 }
 
+// Almost similar to readline() but does not echo text
+// Could have added this logic readline() with a flag, but
+// that would mean changing all the calls to readline().
+// Laziness rocks!!
 char *
 readpasswd(const char *prompt)
 {
