@@ -55,7 +55,9 @@ bc_pgfault(struct UTrapframe *utf)
 	void *dst_addr = (void *) ROUNDDOWN(addr, BLKSIZE);
 	r = sys_page_alloc(thisenv->env_id, dst_addr, PTE_U | PTE_P | PTE_W);
 
-	// (Call to ide_read issued in transparent_disk_decrypt call
+	// Project addition --> Transparent disk decryption (called only if disk block
+	// is encrypted). Bitmap block has been left out of encryption, bitmap block data is tightly
+	// bound in other routines, so can't encrypt.
 	 if(blockno == 2)
 	     ide_read(blockno * BLKSECTS, dst_addr, BLKSECTS);
 	else if (blockno == 1) /* || (blockno == 2)) */
@@ -105,6 +107,7 @@ flush_block(void *addr)
 
 	// LAB 5: Your code here.
 	void *dst_addr = (void *)(ROUNDDOWN(addr, PGSIZE));
+	// Project addition --> Transparent disk encryption.
 	if(va_is_mapped(dst_addr))
 	{
 		if(va_is_dirty(dst_addr))

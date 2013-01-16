@@ -98,10 +98,11 @@ alloc_crypto_block(int block_num)
 
 }
 
+// Free crypto block if in case disk encryption fails.
 int 
 free_crypto_block(int block_num)
 {
-	bitmap[block_num/32] ^= (1 << (block_num % 32));
+	bitmap[block_num/32] |=  (1 << (block_num % 32));
 	flush_block(diskaddr(2));
 	return 0;
 }
@@ -126,6 +127,9 @@ check_bitmap(void)
 	cprintf("bitmap is good\n");
 }
 
+// Looks for an encrypted disk, while booting up.
+// If there is one, it will ask for password to decrypt data
+// Else starts the decryption immediately
 int
 check_encrypt()
 {
@@ -182,6 +186,7 @@ check_encrypt()
 // --------------------------------------------------------------
 
 // Initialize the file system
+// Project addition --> Added check_encrypt call
 void
 fs_init(void)
 {

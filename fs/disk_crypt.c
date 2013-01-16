@@ -14,6 +14,8 @@ void *crypto_page;
 int crypto_page_mapped;
 int s_encrypted;
 
+// Used only for testing; dumps out the disk contents and 
+// it's contents on mapped pages.
 void 
 hexdump(void *addr, char *type)
 {
@@ -35,6 +37,7 @@ hexdump(void *addr, char *type)
 
 }
 
+// Get the total number of blocks (created in fsinit.c, 10240 by default)
 uint32_t 
 get_nblocks()
 {
@@ -42,6 +45,7 @@ get_nblocks()
 	return s->s_nblocks;
 }
 
+// Since TPM was not used, password is used as an authentication mechanism to decrypt data.
 int
 store_passwd(int flag)
 {
@@ -96,6 +100,7 @@ store_passwd(int flag)
 	return 0;
 }
 
+// Encryption initialization function; loads AES context
 int 
 init_encrypt(uint8_t *key)
 {
@@ -121,6 +126,9 @@ init_encrypt(uint8_t *key)
 	return 1;
 }
 
+// Full disk encrypt; called only once; if the disk is decrypted
+// NOTE: AES-ECB mode is used. AES-XTS was not used because of minimal support
+// for it in JOS.
 int 
 full_disk_encrypt()
 {
@@ -200,6 +208,8 @@ full_disk_encrypt()
 	return 0;
 }
 
+// Transparent disk decrypt; since no chaining was used, we just have to get the block
+// that needs to decrypted.
 int
 transparent_disk_decrypt(int block_no, void *dst_addr)
 {
@@ -259,6 +269,8 @@ transparent_disk_decrypt(int block_no, void *dst_addr)
 	return 0;
 }
 
+// Transparent disk encrypt; since no chaining was used, we just have to get the block
+// that needs to encrypted.
 int
 transparent_disk_encrypt(int block_no, void *src_addr)
 {
@@ -304,6 +316,8 @@ transparent_disk_encrypt(int block_no, void *src_addr)
 	return 0;
 }
 
+// Encrypt crypto block (book keeping block; stored in block #10239) 
+// with the password
 int 
 encrypt_crypto_block(char passwd_local[32])
 {
@@ -340,6 +354,8 @@ encrypt_crypto_block(char passwd_local[32])
 
 }
 
+// Decrypt crypto block (book keeping block; stored in block #10239) 
+// with the password
 int 
 decrypt_crypto_block(char passwd_local[32])
 {
@@ -381,6 +397,10 @@ decrypt_crypto_block(char passwd_local[32])
 	return 0;
 
 }
+
+// Encrypt super block; had to be handled in a separate routine
+// because of subtle complications when this was included in 
+// full_disk_encrypt function.
 int 
 encrypt_s_block()
 {
