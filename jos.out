@@ -1,0 +1,4 @@
++ ld obj/kern/kernel
++ mk obj/kern/kernel.img
+Could not open option rom 'sgabios.bin': No such file or directory
+qemu: terminating on signal 2

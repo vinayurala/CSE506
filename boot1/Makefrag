@@ -1,0 +1,28 @@
+#
+# Makefile fragment for the JOS kernel.
+# This is NOT a complete makefile;
+# you must run GNU make in the top-level directory
+# where the GNUmakefile is located.
+#
+OBJDIRS += boot1
+
+BOOT_OBJS := $(OBJDIR)/boot1/boot.o $(OBJDIR)/boot1/main.o $(OBJDIR)/boot1/head64.o 
+
+$(OBJDIR)/boot1/%.o: boot1/%.c
+	@echo + cc -Os $<
+	@mkdir -p $(@D)
+	$(V)$(CC) -nostdinc $(KERN_CFLAGS) -Os -c -o $@ $<
+
+$(OBJDIR)/boot1/%.o: boot1/%.S
+	@echo + as $<
+	@mkdir -p $(@D)
+	$(V)$(CC) -nostdinc $(KERN_CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/boot1/boot: $(BOOT_OBJS)
+	@echo + ld $(OBJDIR)/boot1/boot
+	$(V)$(LD) $(LDFLAGS) -N -e start -Ttext 0x1000 -o $@.out $^
+	$(V)$(OBJDUMP) -S $@.out >$@.asm
+	$(V)$(OBJCOPY) -S -O binary $@.out $@
+
+
+
